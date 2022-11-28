@@ -1,71 +1,36 @@
-Nov'25 2022
+Things Covered on 28-Nov-2022:
 
-10:00am to 12:30pm
+Meeting from 10am-11am
 
-Meeting with Brinda
+            •Session With Brinda and Sudha
 
-Update check on the form Design Which were assigned.
+            •Brinda showed the designing of Dynamic Utility Services (DUS) Access Request form
 
-Live shareing of forms designed in Dev3.
+            • Doesn't have entitlement type and no changes were required so we referred from
+prod manual form and designed similar type in QA environment
 
-Live Form Desiging by Brinda
+            •Finally cross checked with prod manual form
 
-Form Name: ARR
+Other Task
 
-		-> Designing done on QA Environment
+            Brinda asked us to perform form testing but the access hub server was down so we
+            couldn't perform the task
 
-		-> Refering to the Prod Environment
+            • Again in afternoon Brinda assigned Form for designing in DEV environment
 
-		-> Security System and Endpoint in Saviynt
+            Money Market Funds Dbase (MMF) Access Request - Tejash MR
 
-		-> Dynamic Attributes and CSV Upload for Entitement Types
-		
-		-> Indexing Attributes in AH and Rules Creation
+            Aidda (AAR) Access Request - Sumanth SR
 
-2:30pm to 3:30pm
+            Trade Capture Enrichment Platform (XAW) Access Request - Mohammed Jawaad
 
-Meeting with Brinda
+Meeting from 3:30pm-4pm
+            •Team connect checking on daily updates
 
-Form Testing 
+Meeting from 6:20pm-7pm Connect with Brinda
 
-Form Name: MM2
-	
-		-> AD Based from 
-	
-		-> Live Updating the Test Scripts
+            Brinda cross checked the form designed by us and helped us where we went wrong
 
-		-> ADD,Modify,Delete Cases
+Task Completed:
 
-		-> PostMan API CALL Verifiaction
-
-		-> Saviynt Entitilement verifiaction
-
-3:30pm to 3:45pm
-
-Meetting with Team
-
-Agenda: Blocker Checks and Updates if Any
-
-
-4:00pm to 5:00pm
-
-Meeting with Brinda
-
-Form Testing
-
-Form Name: GUI
-
-		-> Ceep and UMT based form
-	
-		-> Has Entitilement Type need to check in Saviynt
-	
-		-> PostMan API Verification as well as Saviynt 
-
-		-> Live TestScript updating
-
-Other Task:-
-
--> Assingned Form Testing By Saurabh (GUI)
-
-
-The Test Script of the GUI is attched to this mail
+             I had completed designing MMF form in DEV environment
