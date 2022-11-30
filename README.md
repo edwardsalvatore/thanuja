@@ -1,36 +1,59 @@
-Things Covered on 28-Nov-2022:
+For the day of Nov'30 2022
 
-Meeting from 10am-11am
+10:00am to 11:00
 
-            •Session With Brinda and Sudha
+Meeting with Brinda
 
-            •Brinda showed the designing of Dynamic Utility Services (DUS) Access Request form
+Agenda : Live Form Testing
+	
+Form : DUS
+	
+	Has no Entitilement type. 
+	only validate in Postman.
+		add case
+		modify case
+		delete case
 
-            • Doesn't have entitlement type and no changes were required so we referred from
-prod manual form and designed similar type in QA environment
+Task assigned by brinda
 
-            •Finally cross checked with prod manual form
+Froms for testing
 
-Other Task
+1.DUS
+2.LIM
+3.AAR
 
-            Brinda asked us to perform form testing but the access hub server was down so we
-            couldn't perform the task
+LIM:
 
-            • Again in afternoon Brinda assigned Form for designing in DEV environment
+	Has Entitilement types
+	Validate in both Postman and Saviynt
+		add case
+		modify case
+		delete case
 
-            Money Market Funds Dbase (MMF) Access Request - Tejash MR
+AAR:
 
-            Aidda (AAR) Access Request - Sumanth SR
+	Has no Entitilement type. 
+	only validate in Postman.
+		add case
+		modify case
+		delete case
 
-            Trade Capture Enrichment Platform (XAW) Access Request - Mohammed Jawaad
+Form Assigned by Saurabh - GUI
 
-Meeting from 3:30pm-4pm
-            •Team connect checking on daily updates
 
-Meeting from 6:20pm-7pm Connect with Brinda
+3:30pm to 3:45pm
 
-            Brinda cross checked the form designed by us and helped us where we went wrong
+Connect with Team
 
-Task Completed:
+Agenda :Updates Check and analysing Blockers if any.
+ 
 
-             I had completed designing MMF form in DEV environment
+Task Done:
+
+Mailing Test Scripts of DUS,LIM and AAR
+
+Reuesting balaji for Visio Application
+
+Connect with 
+
+	
