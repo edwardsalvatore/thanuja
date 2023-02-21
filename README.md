@@ -1,59 +1,28 @@
-For the day of Nov'30 2022
+package hellfun;
 
-10:00am to 11:00
+import java.net.MalformedURLException;
 
-Meeting with Brinda
+import org.apache.commons.validator.UrlValidator;
 
-Agenda : Live Form Testing
-	
-Form : DUS
-	
-	Has no Entitilement type. 
-	only validate in Postman.
-		add case
-		modify case
-		delete case
+public class check {
 
-Task assigned by brinda
+	public static void main(String[] args) {
+		try {
+			boolean hey=isValidURL("https://training210223igal200ilt-ap-south-1"
+					+ "-1088228.saviyntcloud.com/ECM/login/auth");
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("deprecation")
+	static boolean isValidURL(String url) throws MalformedURLException {
+	    UrlValidator validator = new UrlValidator();
+	    return validator.isValid(url);
+	}
+}
 
-Froms for testing
-
-1.DUS
-2.LIM
-3.AAR
-
-LIM:
-
-	Has Entitilement types
-	Validate in both Postman and Saviynt
-		add case
-		modify case
-		delete case
-
-AAR:
-
-	Has no Entitilement type. 
-	only validate in Postman.
-		add case
-		modify case
-		delete case
-
-Form Assigned by Saurabh - GUI
-
-
-3:30pm to 3:45pm
-
-Connect with Team
-
-Agenda :Updates Check and analysing Blockers if any.
- 
-
-Task Done:
-
-Mailing Test Scripts of DUS,LIM and AAR
-
-Reuesting balaji for Visio Application
-
-Connect with 
-
-	
+	<dependency>
+    <groupId>commons-validator</groupId>
+    <artifactId>commons-validator</artifactId>
+    <version>1.7</version>
