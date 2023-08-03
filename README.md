@@ -1,28 +1,20 @@
-package hellfun;
+ public static String findValue(String xmlData,String findValue) throws ParserConfigurationException, SAXException, IOException{
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
 
-import java.net.MalformedURLException;
+            // Parse the XML string into a Document object
+            Document document = builder.parse(new ByteArrayInputStream(xmlData.getBytes()));
 
-import org.apache.commons.validator.UrlValidator;
-
-public class check {
-
-	public static void main(String[] args) {
-		try {
-			boolean hey=isValidURL("https://training210223igal200ilt-ap-south-1"
-					+ "-1088228.saviyntcloud.com/ECM/login/auth");
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	@SuppressWarnings("deprecation")
-	static boolean isValidURL(String url) throws MalformedURLException {
-	    UrlValidator validator = new UrlValidator();
-	    return validator.isValid(url);
-	}
-}
-
-	<dependency>
-    <groupId>commons-validator</groupId>
-    <artifactId>commons-validator</artifactId>
-    <version>1.7</version>
+            // Get a list of all elements with the attribute "token"
+            NodeList nodeList = document.getElementsByTagName("*");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Element element = (Element) nodeList.item(i);
+                String tokenValue = element.getAttribute("token");
+                if (!tokenValue.isEmpty()) {
+                    System.out.println("Token value: " + tokenValue);
+                }
+                return tokenValue;
+            }
+            return findValue;
+            
+    }
