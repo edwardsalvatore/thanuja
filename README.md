@@ -1,6 +1,4 @@
-
-
-        try {
+       try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             InputSource inputSource = new InputSource(new StringReader(xmlData));
@@ -11,16 +9,18 @@
             // Create a HashSet to store group-id-method pairs
             HashSet<String> groupIdMethodPairs = new HashSet<>();
 
-            // Get all "domain" elements
-            NodeList domainList = document.getElementsByTagName("domain");
-            for (int i = 0; i < domainList.getLength(); i++) {
-                Element domainElement = (Element) domainList.item(i);
-                String groupId = domainElement.getParentNode().getAttributes().getNamedItem("id").getNodeValue();
-                String method = domainElement.getAttribute("method");
+            // Get all "group" elements
+            NodeList groupList = document.getElementsByTagName("group");
+            for (int i = 0; i < groupList.getLength(); i++) {
+                Element groupElement = (Element) groupList.item(i);
+                String groupId = groupElement.getAttribute("id");
+                String method = null; // Initialize method as null
 
-                // If method is missing, add it as null
-                if (method.isEmpty()) {
-                    method = null;
+                // Check if the "domain" tag exists within the "group" element
+                NodeList domainList = groupElement.getElementsByTagName("domain");
+                if (domainList.getLength() > 0) {
+                    Element domainElement = (Element) domainList.item(0);
+                    method = domainElement.getAttribute("method");
                 }
 
                 // Add group-id-method pair to the HashSet
@@ -34,4 +34,3 @@
         } catch (Exception e) {
             e.printStackTrace();
         }
-
