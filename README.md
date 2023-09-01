@@ -1,25 +1,4 @@
-import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-import javax.xml.parsers.*;
-import java.io.StringReader;
-import java.util.*;
 
-public class XmlParser {
-    public static void main(String[] args) {
-        String xmlData = "<groups>" +
-                "<group id='1' name='a'>" +
-                "<constant name='z'/>" +
-                "<domain id='1a' method='zebra' />" +
-                "</group>" +
-                "<group id='2' name='b'>" +
-                "<constant name='y'/>" +
-                "<domain id='1b' method='zea' />" +
-                "</group>" +
-                "<group id='3' name='a'>" +
-                "<constant name='z'/>" +
-                "<domain id='1c' />" +
-                "</group>" +
-                "</groups>";
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -29,14 +8,14 @@ public class XmlParser {
             // Parse the XML string
             Document document = builder.parse(inputSource);
 
-            // Create a HashSet to store id-method pairs
-            HashSet<String> idMethodPairs = new HashSet<>();
+            // Create a HashSet to store group-id-method pairs
+            HashSet<String> groupIdMethodPairs = new HashSet<>();
 
             // Get all "domain" elements
             NodeList domainList = document.getElementsByTagName("domain");
             for (int i = 0; i < domainList.getLength(); i++) {
                 Element domainElement = (Element) domainList.item(i);
-                String id = domainElement.getAttribute("id");
+                String groupId = domainElement.getParentNode().getAttributes().getNamedItem("id").getNodeValue();
                 String method = domainElement.getAttribute("method");
 
                 // If method is missing, add it as null
@@ -44,16 +23,15 @@ public class XmlParser {
                     method = null;
                 }
 
-                // Add id-method pair to the HashSet
-                idMethodPairs.add("id=" + id + ", method=" + method);
+                // Add group-id-method pair to the HashSet
+                groupIdMethodPairs.add("group-id=" + groupId + ", method=" + method);
             }
 
             // Print the HashSet
-            for (String pair : idMethodPairs) {
+            for (String pair : groupIdMethodPairs) {
                 System.out.println(pair);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-}
+
