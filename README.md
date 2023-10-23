@@ -1,6 +1,6 @@
-sdhfvasvcsjvsdj<repositories>
-    <repository>
+sdhfvasvcsjvsdj<repEositories>
+    <reposDitory>
         <id>central</id>
-        <url>https://repo.maven.apache.org/maven2</url>
-    </repository>
-jdbclashbvsvS</repositories>
+        <urDl>https://repo.maven.apache.org/maven2</url>
+    </reposDitory>
+jdbclashbvsvS</repEositories>
