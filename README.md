@@ -1,16 +1,14 @@
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
-import java.util.ArrayList;
-
-public class JavaFXExample extends Application {
-    private ArrayList<String> textList = new ArrayList<>();
-    private TextField inputField;
-    private TextField displayField;
+public class HideAndShowExample extends Application {
 
     public static void main(String[] args) {
         launch(args);
@@ -18,45 +16,35 @@ public class JavaFXExample extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Input Text and Add to ArrayList");
-        
-        inputField = createInputField();
-        Button addButton = createAddButton();
-        displayField = createDisplayField();
+        primaryStage.setTitle("Hide and Show Example");
 
-        addButton.setOnAction(e -> handleAddButtonClick());
+        Button button = new Button("Click Me");
+        StackPane root = new StackPane();
+        root.getChildren().add(button);
 
-        VBox vBox = new VBox(inputField, addButton, displayField);
-        vBox.setSpacing(10);
-        Scene scene = new Scene(vBox, 300, 200);
+        Scene scene = new Scene(root, 300, 250);
         primaryStage.setScene(scene);
 
+        button.setOnAction(event -> {
+            // Create a Timeline to hide the window after 4 seconds
+            Duration delay = Duration.seconds(4);
+            KeyFrame keyFrame = new KeyFrame(delay, e -> {
+                // Use Platform.runLater to execute this on the JavaFX application thread
+                Platform.runLater(() -> {
+                    primaryStage.hide();
+                    // Show the window again after 4 seconds
+                    Timeline showTimeline = new Timeline(new KeyFrame(Duration.seconds(4), evt -> primaryStage.show()));
+                    showTimeline.play();
+                });
+            });
+
+            Timeline hideTimeline = new Timeline(keyFrame);
+            hideTimeline.setCycleCount(1);  // Run once
+
+            // Play the timeline to hide the window after 4 seconds
+            hideTimeline.play();
+        });
+
         primaryStage.show();
-    }
-
-    private TextField createInputField() {
-        TextField textField = new TextField();
-        textField.setPromptText("Enter text");
-        return textField;
-    }
-
-    private Button createAddButton() {
-        Button button = new Button("Add to List");
-        return button;
-    }
-
-    private TextField createDisplayField() {
-        TextField textField = new TextField();
-        textField.setPromptText("Added Items");
-        return textField;
-    }
-
-    private void handleAddButtonClick() {
-        String text = inputField.getText();
-        if (!text.isEmpty()) {
-            textList.add(text);
-            inputField.clear();
-            displayField.setText(textList.toString());
-        }
     }
 }
