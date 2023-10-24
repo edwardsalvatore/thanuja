@@ -1,11 +1,16 @@
 import javafx.application.Application;
-import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class ScreenshotApp extends Application {
+import java.util.ArrayList;
+
+public class JavaFXExample extends Application {
+    private ArrayList<String> textList = new ArrayList<>();
+    private TextField inputField;
+    private TextField displayField;
 
     public static void main(String[] args) {
         launch(args);
@@ -13,36 +18,45 @@ public class ScreenshotApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Screenshot and Documentation App");
+        primaryStage.setTitle("Input Text and Add to ArrayList");
+        
+        inputField = createInputField();
+        Button addButton = createAddButton();
+        displayField = createDisplayField();
 
-        Button captureScreenshotButton = new Button("Capture Screenshot");
-        Button generateDocumentButton = new Button("Generate Documentation");
+        addButton.setOnAction(e -> handleAddButtonClick());
 
-        captureScreenshotButton.setOnAction(e -> {
-            // Call the function to capture screenshots
-            captureScreenshots();
-        });
-
-        generateDocumentButton.setOnAction(e -> {
-            // Call the function to generate documentation
-            generateDocumentation();
-        });
-
-        VBox vbox = new VBox(captureScreenshotButton, generateDocumentButton);
-        Scene scene = new Scene(vbox, 300, 200);
+        VBox vBox = new VBox(inputField, addButton, displayField);
+        vBox.setSpacing(10);
+        Scene scene = new Scene(vBox, 300, 200);
         primaryStage.setScene(scene);
+
         primaryStage.show();
     }
 
-    // Function to capture screenshots
-    private void captureScreenshots() {
-        // Implement your screenshot capture logic here
-        // You can use libraries like Selenium or Java Robot for capturing screenshots
+    private TextField createInputField() {
+        TextField textField = new TextField();
+        textField.setPromptText("Enter text");
+        return textField;
     }
 
-    // Function to generate documentation
-    private void generateDocumentation() {
-        // Implement your documentation generation logic here
-        // You can use libraries to create documents (e.g., Apache POI for Word documents)
+    private Button createAddButton() {
+        Button button = new Button("Add to List");
+        return button;
+    }
+
+    private TextField createDisplayField() {
+        TextField textField = new TextField();
+        textField.setPromptText("Added Items");
+        return textField;
+    }
+
+    private void handleAddButtonClick() {
+        String text = inputField.getText();
+        if (!text.isEmpty()) {
+            textList.add(text);
+            inputField.clear();
+            displayField.setText(textList.toString());
+        }
     }
 }
