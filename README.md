@@ -1,7 +1,6 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
@@ -26,23 +25,17 @@ public class HideAndShowExample extends Application {
         primaryStage.setScene(scene);
 
         button.setOnAction(event -> {
-            // Create a Timeline to hide the window after 4 seconds
+            primaryStage.hide();  // Hide the window
             Duration delay = Duration.seconds(4);
             KeyFrame keyFrame = new KeyFrame(delay, e -> {
-                // Use Platform.runLater to execute this on the JavaFX application thread
-                Platform.runLater(() -> {
-                    primaryStage.hide();
-                    // Show the window again after 4 seconds
-                    Timeline showTimeline = new Timeline(new KeyFrame(Duration.seconds(4), evt -> primaryStage.show()));
-                    showTimeline.play();
-                });
+                primaryStage.show();  // Show the window again after 4 seconds
             });
 
-            Timeline hideTimeline = new Timeline(keyFrame);
-            hideTimeline.setCycleCount(1);  // Run once
+            Timeline timeline = new Timeline(keyFrame);
+            timeline.setCycleCount(1);  // Run once
 
-            // Play the timeline to hide the window after 4 seconds
-            hideTimeline.play();
+            // Play the timeline to show the window again after 4 seconds
+            timeline.play();
         });
 
         primaryStage.show();
