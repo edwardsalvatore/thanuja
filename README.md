@@ -1,43 +1,48 @@
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import javafx.util.Duration;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 
-public class HideAndShowExample extends Application {
-
+public class JWTRequestExample {
     public static void main(String[] args) {
-        launch(args);
-    }
+        // Define the API endpoint
+        String tokenUrl = "https://your-auth-service.com/token";
 
-    @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Hide and Show Example");
+        // Define the username and password
+        String username = "your-username";
+        String password = "your-password";
 
-        Button button = new Button("Click Me");
-        StackPane root = new StackPane();
-        root.getChildren().add(button);
+        // Create an HTTP client
+        HttpClient client = HttpClient.newHttpClient();
 
-        Scene scene = new Scene(root, 300, 250);
-        primaryStage.setScene(scene);
+        // Build the request body
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("username", username);
+        requestBody.put("password", password);
+        String requestBodyJson = "{\"username\":\"" + username + "\", \"password\":\"" + password + "\"}";
 
-        button.setOnAction(event -> {
-            primaryStage.hide();  // Hide the window
-            Duration delay = Duration.seconds(4);
-            KeyFrame keyFrame = new KeyFrame(delay, e -> {
-                primaryStage.show();  // Show the window again after 4 seconds
-            });
+        // Create the HTTP request
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(tokenUrl))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson))
+                .build();
 
-            Timeline timeline = new Timeline(keyFrame);
-            timeline.setCycleCount(1);  // Run once
+        // Send the request
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String responseBody = response.body();
 
-            // Play the timeline to show the window again after 4 seconds
-            timeline.play();
-        });
+            // Parse the JWT token from the response
+            // You may need to extract it from the JSON response.
+            String jwtToken = responseBody;
 
-        primaryStage.show();
+            System.out.println("JWT Token: " + jwtToken);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
