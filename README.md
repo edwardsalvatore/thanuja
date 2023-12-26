@@ -10,22 +10,24 @@
 <button onclick="startChecking()">Start Checking</button>
 <button onclick="stopChecking()">Stop Checking</button>
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
 let intervalId;
 
 function checkServerStatus(url) {
-    $.ajax({
-        url: `https://cors-anywhere.herokuapp.com/${url}`,
-        type: 'GET',
-        dataType: 'json',
-        success: function() {
-            console.log(`Server is up: ${url}`);
-        },
-        error: function() {
-            console.error(`Server is down: ${url}`);
+    const xhr = new XMLHttpRequest();
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                console.log(`Server is up: ${url}`);
+            } else {
+                console.error(`Server is down: ${url}`);
+            }
         }
-    });
+    };
+
+    xhr.open('GET', url, true);
+    xhr.send();
 }
 
 function startChecking() {
