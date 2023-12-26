@@ -14,20 +14,20 @@
 let intervalId;
 
 function checkServerStatus(url) {
-    const xhr = new XMLHttpRequest();
-    
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
+    const proxyUrl = 'https://yourdomain.com/proxy.php?url=' + encodeURIComponent(url);
+
+    fetch(proxyUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
                 console.log(`Server is up: ${url}`);
             } else {
                 console.error(`Server is down: ${url}`);
             }
-        }
-    };
-
-    xhr.open('GET', url, true);
-    xhr.send();
+        })
+        .catch(error => {
+            console.error(`Error checking server: ${error.message}`);
+        });
 }
 
 function startChecking() {
