@@ -7,7 +7,12 @@
 </head>
 <body>
 
+<button onclick="startChecking()">Start Checking</button>
+<button onclick="stopChecking()">Stop Checking</button>
+
 <script>
+let intervalId;
+
 function checkServerStatus(url) {
     fetch(url)
         .then(response => {
@@ -17,25 +22,33 @@ function checkServerStatus(url) {
         })
         .catch(error => {
             // Handle server down scenario
-            alert(error.message);
+            console.error(error.message);
         });
 }
 
-// Specify the URLs of the servers you want to monitor
-const serverUrls = ['http://example.com', 'http://example2.com'];
+function startChecking() {
+    // Specify the URLs of the servers you want to monitor
+    const serverUrls = ['http://example.com', 'http://example2.com'];
 
-// Set the interval for checking server status (in milliseconds)
-const checkInterval = 5000; // 5 seconds
+    // Set the interval for checking server status (in milliseconds)
+    const checkInterval = 5000; // 5 seconds
 
-// Start checking server status in a loop
-const intervalId = setInterval(() => {
-    serverUrls.forEach(url => {
-        checkServerStatus(url);
-    });
-}, checkInterval);
+    // Start checking server status in a loop
+    intervalId = setInterval(() => {
+        serverUrls.forEach(url => {
+            checkServerStatus(url);
+        });
+    }, checkInterval);
 
-// To stop the loop, you can use clearInterval like this:
-// clearInterval(intervalId);
+    console.log('Checking started.');
+}
+
+function stopChecking() {
+    // Stop the loop
+    clearInterval(intervalId);
+
+    console.log('Checking stopped.');
+}
 </script>
 
 </body>
