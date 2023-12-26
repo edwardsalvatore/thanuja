@@ -1,42 +1,59 @@
-<?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status Checker</title>
+</head>
+<body>
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
+<button onclick="startChecking()">Start Checking</button>
+<button onclick="stopChecking()">Stop Checking</button>
+
+<script>
+let intervalId;
+
+function checkServerStatus(url) {
+    const proxyUrl = 'https://yourdomain.com/proxy.php?url=' + encodeURIComponent(url);
+
+    fetch(proxyUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log(`Server is up: ${url}`);
+            } else {
+                console.error(`Server is down: ${url}`);
+            }
+        })
+        .catch(error => {
+            console.error(`Error checking server: ${error.message}`);
+        });
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $url = isset($_GET['url']) ? $_GET['url'] : '';
-    
-    if (filter_var($url, FILTER_VALIDATE_URL)) {
-        $response = makeRequest($url);
-        echo json_encode($response);
-    } else {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid URL']);
-    }
-} else {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method Not Allowed']);
+function startChecking() {
+    // Specify the URLs of the servers you want to monitor
+    const serverUrls = ['http://example.com', 'http://example2.com'];
+
+    // Set the interval for checking server status (in milliseconds)
+    const checkInterval = 5000; // 5 seconds
+
+    // Start checking server status in a loop
+    intervalId = setInterval(() => {
+        serverUrls.forEach(url => {
+            checkServerStatus(url);
+        });
+    }, checkInterval);
+
+    console.log('Checking started.');
 }
 
-function makeRequest($url) {
-    $options = [
-        'http' => [
-            'method' => 'GET',
-        ],
-    ];
+function stopChecking() {
+    // Stop the loop
+    clearInterval(intervalId);
 
-    $context = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
-
-    if ($result === false) {
-        return ['status' => 'error', 'message' => 'Request failed'];
-    }
-
-    return ['status' => 'success', 'message' => 'Request successful'];
+    console.log('Checking stopped.');
 }
-?>
+</script>
+
+</body>
+</html>
