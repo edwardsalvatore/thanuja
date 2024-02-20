@@ -1,23 +1,41 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyStore;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 public class TokenGenerator {
     public static void main(String[] args) throws Exception {
         // The API endpoint to generate the token
         String tokenUrl = "https://api.example.com/token";
 
-        // Request body for token generation
-        String requestBody = "grant_type=client_cert";
+        // Load the PKCS12 file
+        String pkcs12FilePath = "path/to/client_certificate.p12";
+        FileInputStream pkcs12FileInputStream = new FileInputStream(pkcs12FilePath);
+        
+        // Load the keystore
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        keyStore.load(pkcs12FileInputStream, "certificate_password".toCharArray());
 
-        // Create URL object
+        // Create SSL context with the keystore
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, "certificate_password".toCharArray());
+
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustManagerFactory.init(keyStore);
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
+
+        // Open HTTPS connection with SSL context
         URL url = new URL(tokenUrl);
-        
-        // Open HTTP connection
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.setSSLSocketFactory(sslContext.getSocketFactory());
+
         // Set request method
         conn.setRequestMethod("POST");
         
@@ -31,7 +49,7 @@ public class TokenGenerator {
 
         // Write request body
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(requestBody.getBytes());
+            os.write("grant_type=client_cert".getBytes());
             os.flush();
         }
 
