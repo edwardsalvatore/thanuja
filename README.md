@@ -1,31 +1,57 @@
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
-import java.awt.Toolkit;
+public class TokenGenerator {
+    public static void main(String[] args) throws Exception {
+        // The API endpoint to generate the token
+        String tokenUrl = "https://api.example.com/token";
 
-@SpringBootApplication
-public class YourSpringApplication {
+        // Request body for token generation
+        String requestBody = "grant_type=client_cert";
 
-    public static void main(String[] args) {
-        // Prevent the system from going to sleep
-        keepSystemAwake();
+        // Create URL object
+        URL url = new URL(tokenUrl);
+        
+        // Open HTTP connection
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        
+        // Set request method
+        conn.setRequestMethod("POST");
+        
+        // Set request headers
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setRequestProperty("Authorization", getBasicAuthHeader("username", "password"));
+        
+        // Enable input and output streams
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
 
-        // Run the Spring application
-        SpringApplication.run(YourSpringApplication.class, args);
+        // Write request body
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(requestBody.getBytes());
+            os.flush();
+        }
+
+        // Read response
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            System.out.println("Token Response: " + response.toString());
+        }
+
+        // Close the connection
+        conn.disconnect();
     }
 
-    private static void keepSystemAwake() {
-        new Thread(() -> {
-            while (true) {
-                try {
-                    // Keep the system awake for 1 minute
-                    Thread.sleep(60000);
-                    // Call Toolkit's beep to prevent the system from sleeping
-                    Toolkit.getDefaultToolkit().beep();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    private static String getBasicAuthHeader(String username, String password) {
+        String credentials = username + ":" + password;
+        byte[] credentialsBytes = credentials.getBytes();
+        return "Basic " + java.util.Base64.getEncoder().encodeToString(credentialsBytes);
     }
 }
