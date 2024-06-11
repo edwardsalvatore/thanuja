@@ -10,7 +10,6 @@
     SINGLEINSTANCE="yes"
     SYSMENU="yes"
     WINDOWSTATE="normal">
-<script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script type="text/javascript">
     function takeScreenshot(filename) {
         var button = document.getElementById('screenshotButton');
@@ -27,6 +26,7 @@
         });
     }
 </script>
+<script src="html2canvas.js"></script>
 </head>
 <body>
     <h1>Screen Capture HTA</h1>
