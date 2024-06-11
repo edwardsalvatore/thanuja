@@ -1,15 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Screen Capture HTA</title>
-<HTA:APPLICATION ID="oMyApp" 
-    APPLICATIONNAME="ScreenCaptureHTA"
-    BORDER="thin"
-    CAPTION="yes"
-    SHOWINTASKBAR="yes"
-    SINGLEINSTANCE="yes"
-    SYSMENU="yes"
-    WINDOWSTATE="normal">
 <script type="text/javascript">
     var counter = 1; // Counter to keep track of screenshots
 
@@ -46,12 +34,12 @@
         WScript.Sleep(500);
         oShell.SendKeys("{ENTER}");
         WScript.Sleep(1000);
+
+        // Specify directory to save screenshots (modify the path as needed)
+        var path = "C:\\Screenshots\\" + filename + ".png";
+        oIE.Document.execCommand("SaveAs", false, path);
+        WScript.Sleep(500);
+
         oIE.Quit();
     }
 </script>
-</head>
-<body>
-    <h1>Screen Capture HTA</h1>
-    <button onclick="takeScreenshot()">Take Screenshot</button>
-</body>
-</html>
