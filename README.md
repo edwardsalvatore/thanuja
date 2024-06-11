@@ -1,3 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Screen Capture HTA</title>
+<HTA:APPLICATION ID="oMyApp" 
+    APPLICATIONNAME="ScreenCaptureHTA"
+    BORDER="thin"
+    CAPTION="yes"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    SYSMENU="yes"
+    WINDOWSTATE="normal">
 <script type="text/javascript">
     var counter = 1; // Counter to keep track of screenshots
 
@@ -23,23 +35,31 @@
             WScript.Sleep(100);
         }
 
-        var oShell = new ActiveXObject("WScript.Shell");
-        oShell.SendKeys("^n");
-        WScript.Sleep(500);
-        oShell.SendKeys("^w");
-        WScript.Sleep(500);
-        oShell.SendKeys("^s");
-        WScript.Sleep(500);
-        oShell.SendKeys(filename);
-        WScript.Sleep(500);
-        oShell.SendKeys("{ENTER}");
-        WScript.Sleep(1000);
+        // Get the directory of the HTA file
+        var currentDirectory = WshShell.CurrentDirectory;
 
-        // Specify directory to save screenshots (modify the path as needed)
-        var path = "C:\\Screenshots\\" + filename + ".png";
-        oIE.Document.execCommand("SaveAs", false, path);
-        WScript.Sleep(500);
+        // Specify the full path to save the screenshot
+        var path = currentDirectory + "\\" + filename + ".png";
 
+        // Create an instance of FileSystemObject
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+        // Create a file
+        var file = fso.CreateTextFile(path, true);
+
+        // Write image data (placeholder)
+        file.Write("Placeholder image data");
+
+        // Close the file
+        file.Close();
+
+        // Quit Internet Explorer
         oIE.Quit();
     }
 </script>
+</head>
+<body>
+    <h1>Screen Capture HTA</h1>
+    <button onclick="takeScreenshot()">Take Screenshot</button>
+</body>
+</html>
