@@ -10,23 +10,24 @@
     SINGLEINSTANCE="yes"
     SYSMENU="yes"
     WINDOWSTATE="normal">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <script type="text/javascript">
     function takeScreenshot(filename) {
         var button = document.getElementById('screenshotButton');
         button.disabled = true; // Disable the button during the process
         
-        html2canvas(document.body).then(function(canvas) {
-            var link = document.createElement("a");
-            document.body.appendChild(link);
-            link.download = filename + ".png";
-            link.href = canvas.toDataURL();
-            link.click();
-            
-            button.disabled = false; // Enable the button after the process is complete
-        });
+        domtoimage.toBlob(document.body)
+            .then(function (blob) {
+                var link = document.createElement("a");
+                document.body.appendChild(link);
+                link.download = filename + ".png";
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                
+                button.disabled = false; // Enable the button after the process is complete
+            });
     }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <h1>Screen Capture HTA</h1>
