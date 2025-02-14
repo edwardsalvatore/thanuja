@@ -1,8 +1,5 @@
-try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-    StringBuilder response = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-        response.append(line);
-    }
-    System.out.println("Response Body: " + response.toString());
-}
+RequestAccessKeys.findAll { 
+    def entitlement = entitlementslist.get(it)
+    entitlement?.class?.toString()?.contains('Entitlement_values') && 
+    entitlement?.entowners?.size() > 0
+}.size() > 0
