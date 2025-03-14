@@ -1,68 +1,43 @@
 import okhttp3.*;
-import okhttp3.logging.HttpLoggingInterceptor;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.util.concurrent.TimeUnit;
+import java.net.*;
 
-public class OkHttpProxyExample {
-    public static void main(String[] args) {
-        // API URL
+public class OkHttpPostmanExact {
+    public static void main(String[] args) throws IOException {
+        // Postman URL
         String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
-
-        // Proxy Configuration
-        String proxyHost = "tpc-proxy.bnymellon.net";
-        int proxyPort = 8080;
         
-        // Use HTTP Proxy (not HTTPS)
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+        // EXACT Proxy from Postman logs
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("tpc-proxy.bnymellon.net", 8080));
 
-        // Enable detailed logging (for debugging)
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        // OkHttpClient with Proxy and Logging
+        // Create OkHttpClient WITH ONLY what Postman does
         OkHttpClient client = new OkHttpClient.Builder()
-                .proxy(proxy)
-                .proxyAuthenticator((route, response) -> {
-                    // Some proxies require an empty "Proxy-Authorization" header
-                    return response.request().newBuilder()
-                            .header("Proxy-Authorization", "")
-                            .build();
-                })
-                .addInterceptor(logging)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
+                .proxy(proxy) // EXACT proxy as Postman
                 .build();
 
-        // Request Body (application/x-www-form-urlencoded)
-        String requestBodyString = "client_id=b930264d-c5a2-469d-ab9a-c1e868dc1f04" +
-                                   "&client_secret=g4m8Q-AyOGYvd1i5WbG7g5X9NFi4KBIf.6vGbajn" +
-                                   "&grant_type=client_credentials" +
-                                   "&resource=https://bny-d36-uat.crm.dynamics.com/" +
-                                   "&tenantId=d1783452-59dc-4cf5-81f0-3d4e31b151cb";
+        // EXACT Postman request body (form-urlencoded)
+        String requestBodyString = 
+                "client_id=b930264d-c5a2-469d-ab9a-c1e868dc1f04" +
+                "&client_secret=g4m8Q-AyOGYvd1i5WbG7g5X9NFi4KBIf.6vGbajn" +
+                "&grant_type=client_credentials" +
+                "&resource=https://bny-d36-uat.crm.dynamics.com/" +
+                "&tenantId=d1783452-59dc-4cf5-81f0-3d4e31b151cb";
 
         RequestBody requestBody = RequestBody.create(
-                MediaType.parse("application/x-www-form-urlencoded"), 
-                requestBodyString
-        );
+                requestBodyString, MediaType.get("application/x-www-form-urlencoded"));
 
-        // Create HTTP Request
+        // Build Request (EXACT Headers from Postman)
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("Accept", "application/json")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .addHeader("Accept", "application/json")
                 .build();
 
-        // Execute Request and Print Response
+        // Execute request and print response EXACTLY like Postman
         try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            System.out.println("Response: " + response.body().string());
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Response Code: " + response.code());
+            System.out.println("Response Body: " + (response.body() != null ? response.body().string() : "No Response"));
         }
     }
 }
