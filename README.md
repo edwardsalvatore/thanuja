@@ -1,50 +1,75 @@
-import okhttp3.*;
-
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
-import java.util.concurrent.TimeUnit;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import org.json.JSONObject;
 
-public class UseSystemProxy {
-    public static void main(String[] args) throws IOException {
-        String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
+public class ApiClient {
+    public static void main(String[] args) {
+        try {
+            // Replace these with actual values
+            String TOKEN_URL = "https://your-token-url"; // Token endpoint
+            String CLIENT_ID = "your-client-id";
+            String CLIENT_SECRET = "your-client-secret";
+            String API_URL = "https://your-api-url"; // API to call
+            boolean USE_PROXY = false; // Change to true if proxy is needed
+            String PROXY_HOST = "your-proxy-host"; // Proxy hostname (if needed)
+            int PROXY_PORT = 8080; // Proxy port (if needed)
 
-        // Enable system proxy like Postman
-        System.setProperty("java.net.useSystemProxies", "true");
+            // Step 1: Get the OAuth2 Token
+            String requestBody = "grant_type=client_credentials&client_id=" + CLIENT_ID +
+                    "&client_secret=" + CLIENT_SECRET +
+                    "&scope=your-api-scope"; // Add scope if required
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .proxy(Proxy.NO_PROXY) // Use system proxy
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+            URL tokenUrl = new URL(TOKEN_URL);
+            HttpURLConnection tokenCon = USE_PROXY
+                    ? (HttpURLConnection) tokenUrl.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT)))
+                    : (HttpURLConnection) tokenUrl.openConnection();
 
-        MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded"); // Match Postman
-        RequestBody body = RequestBody.create(mediaType, 
-            "client_id=b930264d-c5a2-469d-ab9a-c1e868dc1f04&" +
-            "client_secret=g4m8Q-AyOGYvd1i5WbG7g5X9NFi4KBIf.6vGbajn&" +
-            "grant_type=client_credentials&" +
-            "resource=https://bny-d36-uat.crm.dynamics.com/&" +
-            "tenantId=d1783452-59dc-4cf5-81f0-3d4e31b151cb"
-        );
+            tokenCon.setRequestMethod("POST");
+            tokenCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            tokenCon.setDoOutput(true);
 
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .header("Cookie", "fpc=AhdoZt-7GM9KoJ6WJA9mm1hE1DBQAAADnBZt8OAAAA; stsservicecookie=estsfd; x-ms-gateway-slice=estsfd") // Match Postman
-                .header("User-Agent", "PostmanRuntime/7.32.2") // Match Postman
-                .header("Connection", "keep-alive") // Match Postman
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : "No response body";
-            System.out.println("Response Code: " + response.code());
-            System.out.println("Response Body: " + responseBody);
-
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
+            try (OutputStream os = tokenCon.getOutputStream()) {
+                os.write(requestBody.getBytes(StandardCharsets.UTF_8));
             }
+
+            int tokenResponseCode = tokenCon.getResponseCode();
+            if (tokenResponseCode != 200) {
+                System.out.println("Failed to fetch token. Response Code: " + tokenResponseCode);
+                return;
+            }
+
+            BufferedReader tokenReader = new BufferedReader(new InputStreamReader(tokenCon.getInputStream()));
+            String tokenResponse = tokenReader.lines().collect(Collectors.joining());
+            JSONObject tokenJson = new JSONObject(tokenResponse);
+            String accessToken = tokenJson.getString("access_token");
+
+            System.out.println("Access Token: " + accessToken);
+
+            // Step 2: Call the API using the obtained token
+            URL apiUrl = new URL(API_URL);
+            HttpURLConnection apiCon = USE_PROXY
+                    ? (HttpURLConnection) apiUrl.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT)))
+                    : (HttpURLConnection) apiUrl.openConnection();
+
+            apiCon.setRequestMethod("GET");
+            apiCon.setRequestProperty("Authorization", "Bearer " + accessToken);
+            apiCon.setRequestProperty("Accept", "application/json");
+
+            int apiResponseCode = apiCon.getResponseCode();
+            if (apiResponseCode != 200) {
+                System.out.println("API call failed. Response Code: " + apiResponseCode);
+                return;
+            }
+
+            BufferedReader apiReader = new BufferedReader(new InputStreamReader(apiCon.getInputStream()));
+            String apiResponse = apiReader.lines().collect(Collectors.joining());
+
+            System.out.println("API Response: " + apiResponse);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
