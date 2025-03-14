@@ -1,5 +1,6 @@
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -8,7 +9,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
-public class ApacheHttpClientExample {
+public class ApacheHttpClientRedirectHandling {
     public static void main(String[] args) {
         String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
 
@@ -20,7 +21,15 @@ public class ApacheHttpClientExample {
                 "&resource=https://bny-d36-uat.crm.dynamics.com/" +
                 "&tenantId=d1783452-59dc-4cf5-81f0-3d4e31b151cb";
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+        // Disable automatic redirects
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setRedirectsEnabled(false)
+                .build();
+
+        try (CloseableHttpClient client = HttpClients.custom()
+                .setDefaultRequestConfig(requestConfig)
+                .build()) {
+
             HttpPost post = new HttpPost(url);
 
             // Set headers exactly as in Postman
@@ -33,10 +42,18 @@ public class ApacheHttpClientExample {
 
             // Execute request
             HttpResponse response = client.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
             HttpEntity entity = response.getEntity();
             String responseString = (entity != null) ? EntityUtils.toString(entity) : "No Response";
 
-            System.out.println("Response Code: " + response.getStatusLine().getStatusCode());
+            System.out.println("Response Code: " + statusCode);
+
+            if (statusCode == 302) {
+                // Get redirect location
+                String redirectUrl = response.getFirstHeader("Location").getValue();
+                System.out.println("Redirecting to: " + redirectUrl);
+            }
+
             System.out.println("Response Body: " + responseString);
         } catch (IOException e) {
             e.printStackTrace();
