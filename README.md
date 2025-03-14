@@ -7,25 +7,23 @@ import org.json.JSONObject;
 public class ApiClient {
     public static void main(String[] args) {
         try {
-            // Replace these with actual values
-            String TOKEN_URL = "https://your-token-url"; // Token endpoint
-            String CLIENT_ID = "your-client-id";
-            String CLIENT_SECRET = "your-client-secret";
-            String API_URL = "https://your-api-url"; // API to call
-            boolean USE_PROXY = false; // Change to true if proxy is needed
-            String PROXY_HOST = "your-proxy-host"; // Proxy hostname (if needed)
-            int PROXY_PORT = 8080; // Proxy port (if needed)
+            // API & Authentication Details
+            String TOKEN_URL = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
+            String CLIENT_ID = "b930264d-5a2-469d-ab9a-c1e868dc1f04";
+            String CLIENT_SECRET = "g4m8Q-Ay0GYv1d15WbG7g5X9NFj4KbiF.6v6bajn";
+            String RESOURCE = "https://bny-d36-uat.crm.dynamics.com/";
+            String PROXY_HOST = "tpc-proxy.bnymellon.net";
+            int PROXY_PORT = 8080;
 
-            // Step 1: Get the OAuth2 Token
-            String requestBody = "grant_type=client_credentials&client_id=" + CLIENT_ID +
+            // Step 1: Get Access Token via Proxy
+            String requestBody = "grant_type=client_credentials" +
+                    "&client_id=" + CLIENT_ID +
                     "&client_secret=" + CLIENT_SECRET +
-                    "&scope=your-api-scope"; // Add scope if required
+                    "&resource=" + RESOURCE;
 
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
             URL tokenUrl = new URL(TOKEN_URL);
-            HttpURLConnection tokenCon = USE_PROXY
-                    ? (HttpURLConnection) tokenUrl.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT)))
-                    : (HttpURLConnection) tokenUrl.openConnection();
-
+            HttpURLConnection tokenCon = (HttpURLConnection) tokenUrl.openConnection(proxy);
             tokenCon.setRequestMethod("POST");
             tokenCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             tokenCon.setDoOutput(true);
@@ -44,15 +42,12 @@ public class ApiClient {
             String tokenResponse = tokenReader.lines().collect(Collectors.joining());
             JSONObject tokenJson = new JSONObject(tokenResponse);
             String accessToken = tokenJson.getString("access_token");
-
             System.out.println("Access Token: " + accessToken);
 
-            // Step 2: Call the API using the obtained token
+            // Step 2: Call the API Using the Token via Proxy
+            String API_URL = "https://bny-d36-uat.crm.dynamics.com/api/data/v9.0/"; // Example API
             URL apiUrl = new URL(API_URL);
-            HttpURLConnection apiCon = USE_PROXY
-                    ? (HttpURLConnection) apiUrl.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT)))
-                    : (HttpURLConnection) apiUrl.openConnection();
-
+            HttpURLConnection apiCon = (HttpURLConnection) apiUrl.openConnection(proxy);
             apiCon.setRequestMethod("GET");
             apiCon.setRequestProperty("Authorization", "Bearer " + accessToken);
             apiCon.setRequestProperty("Accept", "application/json");
@@ -65,7 +60,6 @@ public class ApiClient {
 
             BufferedReader apiReader = new BufferedReader(new InputStreamReader(apiCon.getInputStream()));
             String apiResponse = apiReader.lines().collect(Collectors.joining());
-
             System.out.println("API Response: " + apiResponse);
 
         } catch (Exception e) {
