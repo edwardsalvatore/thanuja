@@ -1,5 +1,7 @@
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
@@ -8,7 +10,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 
-public class ApacheHttpClientRedirect {
+public class ApacheHttpClientWithProxy {
     public static void main(String[] args) {
         String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
 
@@ -19,16 +21,27 @@ public class ApacheHttpClientRedirect {
                 "&resource=https://bny-d36-uat.crm.dynamics.com/" +
                 "&tenantId=d1783452-59dc-4cf5-81f0-3d4e31b151cb";
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(url);
+        // Define Proxy
+        HttpHost proxy = new HttpHost("tpc-proxy.bnymellon.net", 8080, "http");
 
+        RequestConfig config = RequestConfig.custom()
+                .setProxy(proxy)
+                .build();
+
+        try (CloseableHttpClient client = HttpClients.custom()
+                .setDefaultRequestConfig(config)
+                .build()) {
+
+            // First request (Token request)
+            HttpPost post = new HttpPost(url);
+            post.setConfig(config);
             post.setHeader("Content-Type", "application/x-www-form-urlencoded");
             post.setHeader("Accept", "application/json");
             post.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
             post.setEntity(new StringEntity(requestBodyString));
 
-            // Execute request
+            // Execute request through the proxy
             HttpResponse response = client.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
             System.out.println("Response Code: " + statusCode);
@@ -40,6 +53,7 @@ public class ApacheHttpClientRedirect {
 
                 // Now make a GET request to the redirected URL
                 HttpGet getRequest = new HttpGet(redirectUrl);
+                getRequest.setConfig(config);
                 getRequest.setHeader("User-Agent", "Mozilla/5.0");
 
                 HttpResponse redirectResponse = client.execute(getRequest);
