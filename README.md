@@ -1,16 +1,20 @@
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 
-public class ApacheHttpClientWithProxy {
+public class ApacheHttpClientWithProxyAuth {
     public static void main(String[] args) {
         String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
 
@@ -24,11 +28,16 @@ public class ApacheHttpClientWithProxy {
         // Define Proxy
         HttpHost proxy = new HttpHost("tpc-proxy.bnymellon.net", 8080, "http");
 
+        // Provide empty credentials for anonymous authentication
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials("", "")); // Empty creds
+
         RequestConfig config = RequestConfig.custom()
                 .setProxy(proxy)
                 .build();
 
         try (CloseableHttpClient client = HttpClients.custom()
+                .setDefaultCredentialsProvider(credsProvider)
                 .setDefaultRequestConfig(config)
                 .build()) {
 
