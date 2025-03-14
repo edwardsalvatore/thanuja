@@ -2,21 +2,30 @@ import okhttp3.*;
 import java.io.IOException;
 import java.net.*;
 
-public class OkHttpPostmanExact {
+public class OkHttpProxyAuth {
     public static void main(String[] args) throws IOException {
-        // Postman URL
         String url = "https://login.microsoftonline.com/106bdeea-f616-4dfc-bc1d-6cbbf45e2011/oauth2/token";
-        
-        // EXACT Proxy from Postman logs
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("tpc-proxy.bnymellon.net", 8080));
+        String proxyHost = "tpc-proxy.bnymellon.net";
+        int proxyPort = 8080;
 
-        // Create OkHttpClient WITH ONLY what Postman does
+        // Set up Proxy (SAME as Postman)
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+
+        // OkHttp Client with Proxy + Auto Authentication Handler
         OkHttpClient client = new OkHttpClient.Builder()
-                .proxy(proxy) // EXACT proxy as Postman
+                .proxy(proxy)
+                .proxyAuthenticator((route, response) -> {
+                    // IF proxy asks for authentication (407 response), return a new request
+                    if (response.code() == 407) {
+                        System.out.println("Proxy Authentication Required!");
+                        return response.request().newBuilder().build();
+                    }
+                    return null; // No authentication required
+                })
                 .build();
 
-        // EXACT Postman request body (form-urlencoded)
-        String requestBodyString = 
+        // Postman request body
+        String requestBodyString =
                 "client_id=b930264d-c5a2-469d-ab9a-c1e868dc1f04" +
                 "&client_secret=g4m8Q-AyOGYvd1i5WbG7g5X9NFi4KBIf.6vGbajn" +
                 "&grant_type=client_credentials" +
@@ -26,7 +35,7 @@ public class OkHttpPostmanExact {
         RequestBody requestBody = RequestBody.create(
                 requestBodyString, MediaType.get("application/x-www-form-urlencoded"));
 
-        // Build Request (EXACT Headers from Postman)
+        // Build Request (EXACTLY LIKE POSTMAN)
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
@@ -34,7 +43,7 @@ public class OkHttpPostmanExact {
                 .addHeader("Accept", "application/json")
                 .build();
 
-        // Execute request and print response EXACTLY like Postman
+        // Execute request
         try (Response response = client.newCall(request).execute()) {
             System.out.println("Response Code: " + response.code());
             System.out.println("Response Body: " + (response.body() != null ? response.body().string() : "No Response"));
