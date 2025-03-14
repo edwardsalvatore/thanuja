@@ -39,9 +39,12 @@ public class UseSystemProxy {
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
+                .header("Host", "login.microsoftonline.com") // Postman auto-sets this
+                .header("Content-Length", String.valueOf(requestBodyString.length())) // Postman auto-sets this
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("Accept", "application/json")
                 .header("User-Agent", "PostmanRuntime/7.32.2") // Match Postman User-Agent
+                .header("Connection", "keep-alive") // Ensures persistent connection
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
