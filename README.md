@@ -1,102 +1,73 @@
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
- 
+import java.sql.*;
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
- 
-public class ExcelSplitter {
- 
-    public static void main(String[] args) throws Exception {
-        String excelFilePath = "requestdump.xlsx"; // Your Excel file
-        FileInputStream fis = new FileInputStream(excelFilePath);
-        Workbook workbook = new XSSFWorkbook(fis);
-        Sheet sheet = workbook.getSheetAt(0);
- 
-        int dateColumnIndex = 6; // 7th column (0-based index)
- 
-        // Map to hold data grouped by month
-        Map<String, List<List<String>>> monthlyData = new HashMap<>();
- 
-        // Prepare date formatter
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat keyFormat = new SimpleDateFormat("yyyyMM");
- 
-        // Read header row
-        Row headerRow = sheet.getRow(0);
- 
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null) continue;
- 
-            Cell dateCell = row.getCell(dateColumnIndex);
-            if (dateCell == null) continue;
- 
-            dateCell.setCellType(CellType.STRING);
-            String dateStr = dateCell.getStringCellValue();
- 
-            Date parsedDate;
-            try {
-                parsedDate = inputFormat.parse(dateStr);
-            } catch (Exception e) {
-                System.out.println("Skipping invalid date at row " + i + ": " + dateStr);
-                continue;
+
+public class MultiQueryExporter {
+
+    public static void main(String[] args) {
+        // --- Database connection setup ---
+        String url = "jdbc:mysql://localhost:3306/your_database";  // change DB + port if needed
+        String user = "root";
+        String password = "your_password";
+
+        // --- Queries and file names ---
+        Map<String, String> queries = new LinkedHashMap<>();
+        queries.put("sales_report.csv", "SELECT * FROM sales LIMIT 10");
+        queries.put("customer_list.csv", "SELECT * FROM customers WHERE active=1");
+        queries.put("product_stock.csv", "SELECT * FROM products WHERE quantity < 10");
+
+        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+            System.out.println("✅ Database connected.");
+
+            for (Map.Entry<String, String> entry : queries.entrySet()) {
+                String fileName = entry.getKey();
+                String query = entry.getValue();
+
+                System.out.println("\n▶ Running query for: " + fileName);
+                executeQueryAndSave(conn, query, fileName);
             }
- 
-            String key = keyFormat.format(parsedDate); // e.g., "202203"
-            monthlyData.putIfAbsent(key, new ArrayList<>());
- 
-            List<String> rowData = new ArrayList<>();
-            for (Cell cell : row) {
-                cell.setCellType(CellType.STRING);
-                rowData.add(cell.getStringCellValue());
-            }
- 
-            monthlyData.get(key).add(rowData);
+
+        } catch (SQLException e) {
+            System.out.println("❌ Database error: " + e.getMessage());
         }
- 
-        // Prepare for writing
-        SimpleDateFormat monthFormat = new SimpleDateFormat("MMM", Locale.ENGLISH);
- 
-        for (Map.Entry<String, List<List<String>>> entry : monthlyData.entrySet()) {
-            String key = entry.getKey(); // e.g., 202203
-            int year = Integer.parseInt(key.substring(0, 4));
-            int month = Integer.parseInt(key.substring(4)) - 1;
- 
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, month);
- 
-            String fileName = String.format("REQUESTDUMP_%s%04d.csv",
-                    monthFormat.format(cal.getTime()).toUpperCase(), year);
- 
-            try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-                // Write header
-                List<String> headers = new ArrayList<>();
-                for (Cell cell : headerRow) {
-                    headers.add(cell.getStringCellValue());
+    }
+
+    // --- Method to run a query and save result as CSV ---
+    private static void executeQueryAndSave(Connection conn, String query, String fileName) {
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+
+            if (!rs.isBeforeFirst()) { // check if ResultSet is empty
+                System.out.println("⚠️ Data not found for " + fileName);
+                return;
+            }
+
+            try (PrintWriter writer = new PrintWriter(new File(fileName))) {
+
+                // --- Write header ---
+                for (int i = 1; i <= columnCount; i++) {
+                    writer.print(meta.getColumnName(i));
+                    if (i < columnCount) writer.print(",");
                 }
-                writer.println(String.join(",", headers));
- 
-                // Write rows
-                for (List<String> rowData : entry.getValue()) {
-                    writer.println(String.join(",", rowData));
+                writer.println();
+
+                // --- Write rows ---
+                while (rs.next()) {
+                    for (int i = 1; i <= columnCount; i++) {
+                        writer.print(rs.getString(i));
+                        if (i < columnCount) writer.print(",");
+                    }
+                    writer.println();
                 }
             }
+
+            System.out.println("✅ File created: " + fileName);
+
+        } catch (SQLException | IOException e) {
+            System.out.println("❌ Error running query or writing file: " + e.getMessage());
         }
- 
-        workbook.close();
-        fis.close();
- 
-        System.out.println("✅ Done! CSV files created for each month.");
     }
 }
- 
- 
-<dependencies>
-    <dependency>
-        <groupId>org.apache.poi</groupId>
-        <artifactId>poi-ooxml</artifactId>
-        <version>5.2.3</version>
-    </dependency>
-</dependencies>
